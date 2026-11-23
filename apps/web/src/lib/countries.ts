@@ -14,6 +14,7 @@ export const COUNTRY_OPTIONS = [
   "it",
   "nl",
   "pl",
+  "tr",
   "br",
   "mx",
   "jp",
