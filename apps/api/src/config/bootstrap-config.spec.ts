@@ -58,6 +58,15 @@ describe('assertBootstrapConfiguration', () => {
     ).toThrow('set together');
   });
 
+  it('refuses an address that sign in would refuse', () => {
+    expect(() =>
+      assertBootstrapConfiguration({
+        ...complete,
+        BOOTSTRAP_OWNER_EMAIL: 'ops@engine.x',
+      }),
+    ).toThrow('not an email address');
+  });
+
   it('refuses an address that is not one', () => {
     expect(() =>
       assertBootstrapConfiguration({
