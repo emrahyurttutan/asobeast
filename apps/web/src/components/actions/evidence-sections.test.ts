@@ -297,7 +297,7 @@ describe("evidenceSections", () => {
     ]);
   });
 
-  it("counts the characters of a field that breaks a store rule and lists its problems", () => {
+  it("counts the characters of a field with problems and lists them", () => {
     const evidence = evidenceOf("act-lint");
     if (evidence.rule !== "metadata.fix_lint") throw new Error("fixture");
     const withEmoji: ActionEvidence = {
@@ -322,7 +322,7 @@ describe("evidenceSections", () => {
       "Emoji are not allowed in the title. 🔥",
     ]);
     expect(evidenceSections(evidence).summary).toBe(
-      "Title has 1 store rule problem at 34 of 30 characters.",
+      "Title has 1 problem at 34 of 30 characters.",
     );
   });
 

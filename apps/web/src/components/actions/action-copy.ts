@@ -24,7 +24,7 @@ export const ACTION_RULE_LABEL: Record<ActionRule, string> = {
   "reviews.investigate_theme": "Review themes",
   "market.improve_country": "Underperforming markets",
   "keyword.push_to_top10": "Near the top 10",
-  "metadata.fix_lint": "Store rule problems",
+  "metadata.fix_lint": "Listing text problems",
   "rank.investigate_unexplained_drop": "Unexplained drops",
   "competitor.investigate_overtake": "Competitor overtakes",
   "reviews.investigate_rating_decline": "Rating declines",
@@ -101,7 +101,7 @@ export function summarizeEvidence(evidence: ActionEvidence): string {
     case "listing.cpp_underperforms":
       return `"${evidence.pageTitle}" turns ${percent(evidence.pageConversion)} of its product page views into Get taps against ${percent(evidence.defaultConversion)} on the default product page over ${evidence.windowDays} complete days.`;
     case "metadata.fix_lint":
-      return `${METADATA_FIELD_LABELS[evidence.field]} has ${pluralize(evidence.issues.length, "store rule problem")} at ${measure(evidence.chars)} of ${measure(evidence.limit)} characters.`;
+      return `${METADATA_FIELD_LABELS[evidence.field]} has ${pluralize(evidence.issues.length, "problem")} at ${measure(evidence.chars)} of ${measure(evidence.limit)} characters.`;
     default: {
       const never: never = evidence;
       return never;

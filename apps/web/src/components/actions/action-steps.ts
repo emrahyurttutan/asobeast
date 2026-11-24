@@ -3,9 +3,11 @@ import type {
   ActionEvidence,
   ActionItem,
   ActionRule,
+  MetadataFixLintEvidence,
   Store,
 } from "@asobeast/shared";
 import { formatCountry, formatDate } from "@/lib/format";
+import { METADATA_FIELD_LABELS } from "@/lib/metadata-display";
 import { changedFields } from "./action-headline";
 
 export const CONFIRMATION_STEP =
@@ -34,6 +36,41 @@ const STRONG_FIELDS: Record<Store, string> = {
   APP_STORE: "title and subtitle",
   GOOGLE_PLAY: "title and short description",
 };
+
+type LintIssue = MetadataFixLintEvidence["issues"][number];
+
+const REMOVE_WORD: Partial<
+  Record<string, (word: string, field: string) => string>
+> = {
+  "repeats-title-word": (word, field) =>
+    `Remove ${word} from the ${field}, the title already covers it`,
+  "repeats-subtitle-word": (word, field) =>
+    `Remove ${word} from the ${field}, the subtitle already covers it`,
+  "contains-own-brand": (word, field) =>
+    `Remove ${word} from the ${field}, your app name already covers it`,
+  "contains-generic-word": (word, field) =>
+    `Remove the generic word ${word} from the ${field}`,
+  "contains-competitor-brand": (word, field) =>
+    `Remove the competitor brand ${word} from the ${field}`,
+  "policy-term": (word, field) =>
+    `Remove ${word} from the ${field}, Google Play does not allow it`,
+};
+
+function lintStep(issue: LintIssue, evidence: MetadataFixLintEvidence): string {
+  const field = METADATA_FIELD_LABELS[evidence.field].toLowerCase();
+  switch (issue.rule) {
+    case "over-limit":
+      return `Shorten the ${field} to ${evidence.limit} characters, it has ${evidence.chars}`;
+    case "emoji":
+      return `Remove the emoji from the ${field}, Google Play does not allow it`;
+    case "space-after-comma":
+      return `Remove the spaces after commas in the ${field}`;
+  }
+  const removeWord = REMOVE_WORD[issue.rule];
+  return removeWord && issue.offendingText
+    ? removeWord(`"${issue.offendingText}"`, field)
+    : issue.message;
+}
 
 function addKeywordSteps(
   keyword: string,
@@ -182,7 +219,7 @@ function ruleSteps(
       ];
     case "metadata.fix_lint":
       return [
-        ...evidence.issues.map((issue) => issue.message),
+        ...evidence.issues.map((issue) => lintStep(issue, evidence)),
         "Save and ship the listing change",
       ];
     default: {

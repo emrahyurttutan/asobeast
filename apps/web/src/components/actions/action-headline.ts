@@ -116,7 +116,7 @@ export function actionHeadline(item: ActionItem): string {
     case "listing.cpp_underperforms":
       return `"${evidence.pageTitle}" converts below your default product page`;
     case "metadata.fix_lint":
-      return `Fix ${pluralize(evidence.issues.length, "store rule problem")} in your ${METADATA_FIELD_LABELS[evidence.field].toLowerCase()}`;
+      return `Fix ${pluralize(evidence.issues.length, "problem")} in your ${METADATA_FIELD_LABELS[evidence.field].toLowerCase()}`;
     default: {
       const never: never = evidence;
       return never;

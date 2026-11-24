@@ -36,7 +36,7 @@ export const ACTION_RULE_TITLES: Record<ActionRule, string> = {
   'reviews.investigate_theme': 'Investigate a new negative review theme',
   'market.improve_country': 'Investigate an underperforming market',
   'keyword.push_to_top10': 'Push a keyword that sits just outside the top 10',
-  'metadata.fix_lint': 'Fix listing text that breaks a store rule',
+  'metadata.fix_lint': 'Fix problems in listing text',
   'rank.investigate_unexplained_drop':
     'Investigate a drop that followed no change of yours',
   'competitor.investigate_overtake': 'Respond to a competitor that moved ahead',

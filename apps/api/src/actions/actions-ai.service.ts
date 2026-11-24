@@ -48,7 +48,7 @@ const RULE_DESCRIPTION: Record<ActionRule, string> = {
   'keyword.push_to_top10':
     'A relevant, valuable keyword has sat just outside the top 10 for most of the last week and appears only in a weak metadata field.',
   'metadata.fix_lint':
-    'A home market listing field has error-level lint issues that break a store rule, such as exceeding its character limit.',
+    'A home market listing field has error-level lint issues: it breaks a store rule, such as exceeding its character limit, or wastes indexed characters, such as repeating a word another field already holds.',
   'rank.investigate_unexplained_drop':
     'Visibility or several tracked ranks fell in a market over the last two weeks without an indexed metadata change of this app to explain it.',
   'competitor.investigate_overtake':

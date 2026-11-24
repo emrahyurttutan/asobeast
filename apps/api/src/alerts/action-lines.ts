@@ -40,7 +40,7 @@ const RULE_SUMMARY = (evidence: ActionEvidence): string => {
     case 'listing.cpp_underperforms':
       return `"${evidence.pageTitle}" turns ${percent(evidence.pageConversion)} of its page views into Get taps against ${percent(evidence.defaultConversion)} on the default page over ${evidence.windowDays} days`;
     case 'metadata.fix_lint':
-      return `${evidence.issues.length} store rule ${evidence.issues.length === 1 ? 'problem' : 'problems'} in ${evidence.field}, ${evidence.chars}/${evidence.limit} characters`;
+      return `${evidence.issues.length} ${evidence.issues.length === 1 ? 'problem' : 'problems'} in ${evidence.field}, ${evidence.chars}/${evidence.limit} characters`;
     default: {
       const never: never = evidence;
       return never;

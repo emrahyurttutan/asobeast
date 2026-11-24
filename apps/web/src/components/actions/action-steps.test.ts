@@ -111,27 +111,84 @@ describe("actionSteps", () => {
     });
   });
 
-  it("turns each store rule problem into a step before shipping the fix", () => {
+  describe("listing problems", () => {
     const lint = ACTIONS.find((item) => item.id === "act-lint")!;
     const evidence = lint.evidence!;
     if (evidence.rule !== "metadata.fix_lint") throw new Error("fixture");
-    const emoji = {
-      rule: "emoji",
-      message: "Emoji are not allowed in the title.",
-      offendingText: "🔥",
-    };
 
-    expect(
-      actionSteps({
-        ...lint,
-        evidence: { ...evidence, issues: [...evidence.issues, emoji] },
-      }),
-    ).toEqual([
-      "Exceeds the 30 character limit (34).",
-      "Emoji are not allowed in the title.",
-      "Save and ship the listing change",
-      CONFIRMATION_STEP,
-    ]);
+    const stepsFor = (
+      field: typeof evidence.field,
+      issues: typeof evidence.issues,
+    ) => actionSteps({ ...lint, evidence: { ...evidence, field, issues } });
+
+    const issue = (rule: string, offendingText: string | null) => ({
+      rule,
+      message: `${rule} message`,
+      offendingText,
+    });
+
+    it("turns each problem into an instruction before shipping the fix", () => {
+      const emoji = {
+        rule: "emoji",
+        message: "Emoji are not allowed in the title.",
+        offendingText: "🔥",
+      };
+
+      expect(stepsFor("title", [...evidence.issues, emoji])).toEqual([
+        "Shorten the title to 30 characters, it has 34",
+        "Remove the emoji from the title, Google Play does not allow it",
+        "Save and ship the listing change",
+        CONFIRMATION_STEP,
+      ]);
+    });
+
+    it("tells the owner to remove a subtitle word the title already holds", () => {
+      expect(
+        stepsFor("subtitle", [
+          {
+            rule: "repeats-title-word",
+            message: '"games" already appears in the title.',
+            offendingText: "games",
+          },
+        ]),
+      ).toEqual([
+        'Remove "games" from the subtitle, the title already covers it',
+        "Save and ship the listing change",
+        CONFIRMATION_STEP,
+      ]);
+    });
+
+    it("words every keyword field problem as what to remove", () => {
+      expect(
+        stepsFor("keywordField", [
+          issue("repeats-subtitle-word", "learning"),
+          issue("contains-own-brand", "kidsy"),
+          issue("contains-generic-word", "app"),
+          issue("contains-competitor-brand", "edudi"),
+          issue("space-after-comma", ", a"),
+        ]).slice(0, 5),
+      ).toEqual([
+        'Remove "learning" from the keyword field, the subtitle already covers it',
+        'Remove "kidsy" from the keyword field, your app name already covers it',
+        'Remove the generic word "app" from the keyword field',
+        'Remove the competitor brand "edudi" from the keyword field',
+        "Remove the spaces after commas in the keyword field",
+      ]);
+    });
+
+    it("names a Google Play policy term and keeps an unknown problem as written", () => {
+      expect(
+        stepsFor("shortDescription", [
+          issue("policy-term", "best"),
+          issue("future-rule", "x"),
+          issue("repeats-title-word", null),
+        ]).slice(0, 3),
+      ).toEqual([
+        'Remove "best" from the short description, Google Play does not allow it',
+        "future-rule message",
+        "repeats-title-word message",
+      ]);
+    });
   });
 
   it("sends unanswered Play reviews to the reply composer", () => {

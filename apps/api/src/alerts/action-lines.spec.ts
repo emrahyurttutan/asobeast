@@ -111,7 +111,7 @@ describe('summarizeActionEvidence', () => {
     ).toBe('last store update 142 days ago, competitor median 25 days');
   });
 
-  it('counts the store rule problems in a listing field', () => {
+  it('counts the problems in a listing field', () => {
     const lint = {
       rule: 'metadata.fix_lint' as const,
       field: 'title' as const,
@@ -127,13 +127,13 @@ describe('summarizeActionEvidence', () => {
     };
 
     expect(summarizeActionEvidence(lint)).toBe(
-      '1 store rule problem in title, 34/30 characters',
+      '1 problem in title, 34/30 characters',
     );
     expect(
       summarizeActionEvidence({
         ...lint,
         issues: [...lint.issues, { ...lint.issues[0], rule: 'emoji' }],
       }),
-    ).toBe('2 store rule problems in title, 34/30 characters');
+    ).toBe('2 problems in title, 34/30 characters');
   });
 });

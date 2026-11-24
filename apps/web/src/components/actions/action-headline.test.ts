@@ -311,7 +311,7 @@ describe("actionHeadline", () => {
     ).toBe("Ship an update: your listing is 142 days old");
   });
 
-  it("counts the store rule problems in a listing field", () => {
+  it("counts the problems in a listing field", () => {
     const issue = {
       rule: "over-limit",
       message: "Exceeds the 30 character limit (34).",
@@ -325,11 +325,9 @@ describe("actionHeadline", () => {
       issues: [issue],
     };
 
-    expect(headline(lint, null)).toBe(
-      "Fix 1 store rule problem in your keyword field",
-    );
+    expect(headline(lint, null)).toBe("Fix 1 problem in your keyword field");
     expect(headline({ ...lint, issues: [issue, issue] }, null)).toBe(
-      "Fix 2 store rule problems in your keyword field",
+      "Fix 2 problems in your keyword field",
     );
   });
 
