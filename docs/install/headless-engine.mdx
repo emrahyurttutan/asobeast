@@ -17,7 +17,14 @@ Three variables create the account and the token at boot, so a fresh stack is us
 - `BOOTSTRAP_OWNER_EMAIL` and `BOOTSTRAP_OWNER_PASSWORD` create the owner in the bootstrap workspace, only while the instance has no account. Registration then stays closed as usual.
 - `BOOTSTRAP_API_TOKEN` stores a write scoped token for that owner. You choose its value, so the same value goes into the other product's configuration.
 
-Every boot repeats the check and changes nothing when the owner and the token already exist. A token revoked in the dashboard comes back on the next restart while the variable is set; remove the variable to retire it. The [configuration reference](/configuration/reference#authentication) lists the exact rules, and the API refuses to boot when they are broken.
+Every boot repeats the check before the API starts answering, so the token works as soon as the health check passes. It changes nothing when the owner and the token already exist. The token is stored only for the account the email names, and only while `BOOTSTRAP_OWNER_PASSWORD` matches that account's current password.
+
+That rule decides how a token is retired:
+
+- A token revoked in the dashboard comes back on the next restart while the variables are unchanged. Remove `BOOTSTRAP_API_TOKEN` to retire it for good.
+- Changing or recovering the owner's password revokes every token, and the bootstrap token stays revoked, because the configured password no longer matches. Set the new password in `BOOTSTRAP_OWNER_PASSWORD` to store the token again.
+
+The [configuration reference](/configuration/reference#authentication) lists the exact rules, and the API refuses to boot when they are broken.
 
 Generate a token value:
 
@@ -39,14 +46,31 @@ services:
       POSTGRES_DB: asobeast
     volumes:
       - asobeast-pgdata:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U asobeast -d asobeast"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   asobeast-redis:
     image: redis:8-alpine
     command: ["redis-server", "--maxmemory", "192mb", "--maxmemory-policy", "noeviction"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   asobeast-api:
     image: ghcr.io/asobeast/asobeast-api:2.0.0
-    depends_on: [asobeast-postgres, asobeast-redis]
+    restart: unless-stopped
+    depends_on:
+      asobeast-postgres:
+        condition: service_healthy
+      asobeast-redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://asobeast:${ASOBEAST_POSTGRES_PASSWORD}@asobeast-postgres:5432/asobeast
       REDIS_HOST: asobeast-redis
