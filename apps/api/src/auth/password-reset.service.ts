@@ -14,6 +14,7 @@ import { endSessions } from './session-store';
 import { sha256 } from './password-hash';
 import { RecoveryRateLimiter } from './rate-limit/recovery-rate.limiter';
 import { RecoveryMailer } from './recovery-mailer';
+import { normalizeEmail } from './normalize-email';
 
 export const RESET_TOKEN_MINUTES = 60;
 
@@ -131,10 +132,6 @@ export class PasswordResetService {
       `account ${user.id} recovered its password from an emailed link, ending every session and revoking every api token it had`,
     );
   }
-}
-
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
 }
 
 function reason(error: unknown): string {
