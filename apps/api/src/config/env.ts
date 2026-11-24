@@ -5,6 +5,7 @@ import {
   OCR_LANGUAGES,
 } from '../screenshots/ocr-languages';
 import { assertAppleAdsConfiguration } from './apple-ads-config';
+import { assertBootstrapConfiguration } from './bootstrap-config';
 import { assertStoreConnectConfiguration } from './store-connect-config';
 import { assertProductionSafety } from './production-safety';
 import { assertSmtpDkimConfiguration } from './smtp-dkim-config';
@@ -227,6 +228,9 @@ export const EnvSchema = z.object({
     .default('false')
     .transform((value) => value === 'true'),
   AUTH_REGISTRATION_WORKSPACE: z.enum(['own', 'shared']).default('own'),
+  BOOTSTRAP_OWNER_EMAIL: optionalText,
+  BOOTSTRAP_OWNER_PASSWORD: optionalText,
+  BOOTSTRAP_API_TOKEN: optionalText,
   AUTH_COOKIE_SECURE: z
     .enum(['true', 'false'])
     .default('false')
@@ -291,5 +295,6 @@ export function validateEnv(config: Record<string, unknown>): Env {
   assertAppleAdsConfiguration(env);
   assertSmtpDkimConfiguration(env);
   assertStoreConnectConfiguration(env);
+  assertBootstrapConfiguration(env);
   return env;
 }

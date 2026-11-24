@@ -48,6 +48,7 @@ export default tseslint.config(
     ignores: [
       'src/**/*.spec.{ts,tsx}',
       'src/auth/auth.service.ts',
+      'src/auth/headless-bootstrap.ts',
       'src/auth/platform-operator.ts',
     ],
     rules: {
