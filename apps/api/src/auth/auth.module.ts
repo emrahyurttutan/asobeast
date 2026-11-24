@@ -20,6 +20,7 @@ import { RateLimitModule } from './rate-limit/rate-limit.module';
 import { DailyCapacity } from '../jobs/daily-capacity.service';
 import { SignupCapacityGate } from './signup-capacity.gate';
 import { TrialClaimBackfill } from './trial-claim-backfill';
+import { HeadlessBootstrap } from './headless-bootstrap';
 import { TrialClaims } from './trial-claims';
 import { TrialOffers } from './trial-offers';
 import { EntrySteps } from './entry-steps';
@@ -50,6 +51,7 @@ import { EntrySteps } from './entry-steps';
     TrialOffers,
     EntrySteps,
     TrialClaimBackfill,
+    HeadlessBootstrap,
     PasswordResetService,
     SessionStore,
     PublicWebUrl,

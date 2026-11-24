@@ -43,6 +43,7 @@ import { SignupCapacityGate } from './signup-capacity.gate';
 import { termsAcceptance } from './terms-acceptance';
 import { lockRegistration } from './registration-lock';
 import type { LoginDto } from './dto/login.dto';
+import { normalizeEmail } from './normalize-email';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -391,10 +392,6 @@ export class AuthService {
   private getDummyHash(): Promise<string> {
     return (this.dummyHash ??= argon2.hash(randomBytes(16).toString('hex')));
   }
-}
-
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
 }
 
 function scopeOf(row: ApiToken): ApiTokenScope {

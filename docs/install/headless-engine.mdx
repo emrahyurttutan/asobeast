@@ -1,0 +1,87 @@
+---
+title: Run as a headless engine
+sidebarTitle: Headless engine
+description: Run the API image beside another product as its ASO engine, with an owner and an API token created at boot, no dashboard and no browser step.
+icon: server-cog
+keywords: ["headless","sidecar","engine","bootstrap","api token","BOOTSTRAP_API_TOKEN","no browser","embedded"]
+---
+
+Another product can use AsoBeast as its keyword, ranking and scoring engine and show the results in its own screens. In that setup nobody opens the dashboard: the product's backend talks to the API with a token and receives alerts as signed webhooks.
+
+The API image holds everything the engine needs, the queue workers and the migrations included, so the web image is optional.
+
+## What the bootstrap variables do
+
+Three variables create the account and the token at boot, so a fresh stack is usable without anyone registering in a browser:
+
+- `BOOTSTRAP_OWNER_EMAIL` and `BOOTSTRAP_OWNER_PASSWORD` create the owner in the bootstrap workspace, only while the instance has no account. Registration then stays closed as usual.
+- `BOOTSTRAP_API_TOKEN` stores a write scoped token for that owner. You choose its value, so the same value goes into the other product's configuration.
+
+Every boot repeats the check and changes nothing when the owner and the token already exist. A token revoked in the dashboard comes back on the next restart while the variable is set; remove the variable to retire it. The [configuration reference](/configuration/reference#authentication) lists the exact rules, and the API refuses to boot when they are broken.
+
+Generate a token value:
+
+```bash
+echo asob_$(openssl rand -hex 24)
+```
+
+## Add the engine to a Compose stack
+
+This fragment runs the API with its own PostgreSQL and Redis on a private network. Pin the image to a version, as [Run a published release](/install/published-images) explains, so an upgrade and its migrations happen when you decide.
+
+```yaml
+services:
+  asobeast-postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: asobeast
+      POSTGRES_PASSWORD: ${ASOBEAST_POSTGRES_PASSWORD}
+      POSTGRES_DB: asobeast
+    volumes:
+      - asobeast-pgdata:/var/lib/postgresql
+
+  asobeast-redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--maxmemory", "192mb", "--maxmemory-policy", "noeviction"]
+
+  asobeast-api:
+    image: ghcr.io/asobeast/asobeast-api:2.0.0
+    depends_on: [asobeast-postgres, asobeast-redis]
+    environment:
+      DATABASE_URL: postgresql://asobeast:${ASOBEAST_POSTGRES_PASSWORD}@asobeast-postgres:5432/asobeast
+      REDIS_HOST: asobeast-redis
+      REDIS_PORT: 6379
+      PORT: 4000
+      NODE_ENV: production
+      AUTH_SECRET: ${ASOBEAST_AUTH_SECRET}
+      AUTH_COOKIE_SECURE: "true"
+      BOOTSTRAP_OWNER_EMAIL: ${ASOBEAST_OWNER_EMAIL}
+      BOOTSTRAP_OWNER_PASSWORD: ${ASOBEAST_OWNER_PASSWORD}
+      BOOTSTRAP_API_TOKEN: ${ASOBEAST_API_TOKEN}
+      WEBHOOK_ALLOW_PRIVATE_TARGETS: "true"
+
+volumes:
+  asobeast-pgdata:
+```
+
+The other product's backend reaches the API at `http://asobeast-api:4000` and sends the token as a bearer header, as [Use a token](/security/api-tokens#use-a-token) shows. Keep the token on the backend: a browser should never hold it.
+
+## Receive alerts on the same network
+
+By default a webhook may not point at a private address, so a receiver named by a Compose service is refused. `WEBHOOK_ALLOW_PRIVATE_TARGETS=true` lifts that for a self hosted instance; it cannot be combined with billing. Register the receiver with `POST /webhooks` using the same token, and verify every delivery as [Webhook delivery](/guides/alerts#webhook-delivery) describes.
+
+## Check the engine
+
+After the first boot, the token answers as the owner:
+
+```bash
+curl -fsS -H "Authorization: Bearer $ASOBEAST_API_TOKEN" http://asobeast-api:4000/auth/me
+```
+
+`GET /jobs/store-health` and `GET /jobs/budget` report whether store collection is healthy and how much of the daily request budget the tracked keywords use. The [capacity guide](/operations/capacity) explains how many keywords one address can check each day.
+
+## Related
+
+- [Configuration reference](/configuration/reference)
+- [Personal API tokens](/security/api-tokens)
+- [Alerts](/guides/alerts)

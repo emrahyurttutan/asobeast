@@ -116,6 +116,7 @@
               "install/docker-compose",
               "install/railway",
               "install/published-images",
+              "install/headless-engine",
               "install/local-development",
               "install/upgrade"
             ]

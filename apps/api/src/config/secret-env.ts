@@ -14,6 +14,8 @@ export const SECRET_ENV_KEYS = [
   'STORE_CONNECT_ENCRYPTION_KEY',
   'STORE_CONNECT_ENCRYPTION_KEY_PREVIOUS',
   'GOOGLE_PLAY_OAUTH_CLIENT_SECRET',
+  'BOOTSTRAP_OWNER_PASSWORD',
+  'BOOTSTRAP_API_TOKEN',
 ] as const satisfies readonly (keyof Env)[];
 
 export type SecretEnvKey = (typeof SECRET_ENV_KEYS)[number];
