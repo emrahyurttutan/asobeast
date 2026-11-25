@@ -39,6 +39,7 @@ jobs:
       - run: pnpm check:playwright-image
       - run: pnpm check:release-versions
       - run: pnpm docs:mcp-tools:check
+      - run: pnpm docs:webhook-schema:check
       - name: Summarize coverage
         if: always()
         run: |

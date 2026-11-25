@@ -1,0 +1,3320 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/AlertPayload",
+  "definitions": {
+    "AlertPayload": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/GranularAlertPayload"
+        },
+        {
+          "$ref": "#/definitions/AlertBatchPayload"
+        }
+      ]
+    },
+    "GranularAlertPayload": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/MetadataChangedPayload"
+        },
+        {
+          "$ref": "#/definitions/RankDroppedPayload"
+        },
+        {
+          "$ref": "#/definitions/RankImprovedPayload"
+        },
+        {
+          "$ref": "#/definitions/RankMilestonePayload"
+        },
+        {
+          "$ref": "#/definitions/RankFirstPayload"
+        },
+        {
+          "$ref": "#/definitions/RankOvertakenPayload"
+        },
+        {
+          "$ref": "#/definitions/ReviewNegativePayload"
+        },
+        {
+          "$ref": "#/definitions/ReviewNewPayload"
+        },
+        {
+          "$ref": "#/definitions/RatingDroppedPayload"
+        },
+        {
+          "$ref": "#/definitions/ReviewSpikePayload"
+        },
+        {
+          "$ref": "#/definitions/AppDelistedPayload"
+        },
+        {
+          "$ref": "#/definitions/AppUnlistedMarketPayload"
+        },
+        {
+          "$ref": "#/definitions/DigestWeeklyPayload"
+        },
+        {
+          "$ref": "#/definitions/SerpEntrantPayload"
+        },
+        {
+          "$ref": "#/definitions/ActionOpenedPayload"
+        },
+        {
+          "$ref": "#/definitions/ChartMovePayload"
+        }
+      ]
+    },
+    "MetadataChangedPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "metadata.changed"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "isCompetitor": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "isCompetitor",
+            "name"
+          ]
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "$ref": "#/definitions/ChangeField"
+              },
+              "before": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "after": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "before",
+              "after"
+            ]
+          }
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "changes"
+      ]
+    },
+    "Store": {
+      "type": "string",
+      "enum": [
+        "APP_STORE",
+        "GOOGLE_PLAY"
+      ]
+    },
+    "ChangeField": {
+      "type": "string",
+      "enum": [
+        "title",
+        "subtitle",
+        "summary",
+        "description",
+        "version",
+        "price",
+        "screenshots",
+        "screenshotImages",
+        "screenshotCaptions",
+        "icon",
+        "whatsNew",
+        "inAppEvents",
+        "featuring",
+        "editorsChoice"
+      ]
+    },
+    "RankDroppedPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "rank.dropped"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "keyword": {
+          "$ref": "#/definitions/KeywordScope"
+        },
+        "from": {
+          "type": "number"
+        },
+        "to": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "fromDepth": {
+          "type": "number"
+        },
+        "toDepth": {
+          "type": "number"
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "confirmed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "keyword",
+        "from",
+        "to",
+        "fromDepth",
+        "toDepth",
+        "threshold"
+      ]
+    },
+    "KeywordScope": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "store": {
+          "$ref": "#/definitions/Store"
+        },
+        "country": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "store",
+        "country"
+      ]
+    },
+    "RankImprovedPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "rank.improved"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "keyword": {
+          "$ref": "#/definitions/KeywordScope"
+        },
+        "from": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "to": {
+          "type": "number"
+        },
+        "fromDepth": {
+          "type": "number"
+        },
+        "toDepth": {
+          "type": "number"
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "undoesDrop": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "keyword",
+        "from",
+        "to",
+        "fromDepth",
+        "toDepth",
+        "threshold"
+      ]
+    },
+    "RankMilestonePayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "rank.milestone"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "keyword": {
+          "$ref": "#/definitions/KeywordScope"
+        },
+        "tier": {
+          "$ref": "#/definitions/RankMilestoneTier"
+        },
+        "direction": {
+          "$ref": "#/definitions/RankMilestoneDirection"
+        },
+        "from": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "fromDepth": {
+          "type": "number"
+        },
+        "toDepth": {
+          "type": "number"
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "undoesDrop": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "keyword",
+        "tier",
+        "direction",
+        "from",
+        "to",
+        "fromDepth",
+        "toDepth"
+      ]
+    },
+    "RankMilestoneTier": {
+      "type": "number",
+      "enum": [
+        1,
+        3,
+        10
+      ]
+    },
+    "RankMilestoneDirection": {
+      "type": "string",
+      "enum": [
+        "entered",
+        "left"
+      ]
+    },
+    "RankFirstPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "rank.first"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "keyword": {
+          "$ref": "#/definitions/KeywordScope"
+        },
+        "position": {
+          "type": "number"
+        },
+        "depth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "keyword",
+        "position",
+        "depth"
+      ]
+    },
+    "RankOvertakenPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "rank.overtaken"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "keyword": {
+          "$ref": "#/definitions/KeywordScope"
+        },
+        "competitor": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "from": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "to": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "from",
+            "to"
+          ]
+        },
+        "from": {
+          "type": "number"
+        },
+        "to": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "fromDepth": {
+          "type": "number"
+        },
+        "toDepth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "keyword",
+        "competitor",
+        "from",
+        "to",
+        "fromDepth",
+        "toDepth"
+      ]
+    },
+    "ReviewNegativePayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "review.negative"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "review": {
+          "$ref": "#/definitions/AlertReviewBody"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "review"
+      ]
+    },
+    "AlertReviewBody": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number"
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reviewedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "score",
+        "title",
+        "text",
+        "version",
+        "reviewedAt"
+      ]
+    },
+    "ReviewNewPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "review.new"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "review": {
+          "type": "object",
+          "properties": {
+            "author": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "score": {
+              "type": "number"
+            },
+            "title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reviewedAt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "author",
+            "reviewedAt",
+            "score",
+            "text",
+            "title",
+            "version"
+          ]
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "review"
+      ]
+    },
+    "RatingDroppedPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "rating.dropped"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "country": {
+          "type": "string"
+        },
+        "from": {
+          "type": "number"
+        },
+        "to": {
+          "type": "number"
+        },
+        "fromCount": {
+          "type": "number"
+        },
+        "toCount": {
+          "type": "number"
+        },
+        "fromDate": {
+          "type": "string"
+        },
+        "toDate": {
+          "type": "string"
+        },
+        "dropTenths": {
+          "type": "number"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "actionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "country",
+        "from",
+        "to",
+        "fromCount",
+        "toCount",
+        "fromDate",
+        "toDate",
+        "dropTenths",
+        "version",
+        "actionId"
+      ]
+    },
+    "ReviewSpikePayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "review.spike"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "date": {
+          "type": "string"
+        },
+        "count": {
+          "type": "number"
+        },
+        "median": {
+          "type": "number"
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "lowShare": {
+          "type": "number"
+        },
+        "lowScoreMax": {
+          "type": "number"
+        },
+        "topTheme": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReviewSpikeTheme"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "date",
+        "count",
+        "median",
+        "threshold",
+        "lowShare",
+        "lowScoreMax",
+        "topTheme"
+      ]
+    },
+    "ReviewSpikeTheme": {
+      "type": "object",
+      "properties": {
+        "phrase": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/definitions/ReviewThemeKind"
+        },
+        "mentions": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "phrase",
+        "kind",
+        "mentions"
+      ]
+    },
+    "ReviewThemeKind": {
+      "type": "string",
+      "enum": [
+        "complaint",
+        "praise"
+      ]
+    },
+    "AppDelistedPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "app.delisted"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "isCompetitor": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "isCompetitor",
+            "name"
+          ]
+        },
+        "store": {
+          "$ref": "#/definitions/Store"
+        },
+        "country": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "store",
+        "country",
+        "date"
+      ]
+    },
+    "AppUnlistedMarketPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "app.unlisted_market"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "isCompetitor": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "isCompetitor",
+            "name"
+          ]
+        },
+        "store": {
+          "$ref": "#/definitions/Store"
+        },
+        "country": {
+          "type": "string"
+        },
+        "market": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "trackedKeywords": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "store",
+        "country",
+        "market",
+        "date",
+        "trackedKeywords"
+      ]
+    },
+    "DigestWeeklyPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "digest.weekly"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "window": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ]
+        },
+        "apps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DigestAppSummary"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DigestGroupSummary"
+          }
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "window",
+        "apps",
+        "groups"
+      ]
+    },
+    "DigestAppSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "visibility": {
+          "type": "object",
+          "properties": {
+            "current": {
+              "type": "number"
+            },
+            "delta7d": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "current",
+            "delta7d"
+          ]
+        },
+        "moversUp": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KeywordMover"
+          }
+        },
+        "moversDown": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KeywordMover"
+          }
+        },
+        "changes": {
+          "type": "number"
+        },
+        "negativeReviews": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "audit": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AppAuditTrend"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AppActionCounts"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "visibility",
+        "moversUp",
+        "moversDown",
+        "changes",
+        "negativeReviews",
+        "audit",
+        "actions"
+      ]
+    },
+    "KeywordMover": {
+      "type": "object",
+      "properties": {
+        "keywordId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "from": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "fromDepth": {
+          "type": "number"
+        },
+        "toDepth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "keywordId",
+        "text",
+        "from",
+        "to",
+        "fromDepth",
+        "toDepth"
+      ]
+    },
+    "AppAuditTrend": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "delta7d": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "current",
+        "delta7d"
+      ]
+    },
+    "AppActionCounts": {
+      "type": "object",
+      "properties": {
+        "open": {
+          "type": "number"
+        },
+        "critical": {
+          "type": "number"
+        },
+        "high": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "open",
+        "critical",
+        "high"
+      ]
+    },
+    "DigestGroupSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "object",
+          "properties": {
+            "current": {
+              "type": "number"
+            },
+            "delta7d": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "current",
+            "delta7d"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "visibility"
+      ]
+    },
+    "SerpEntrantPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "serp.entrant"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "keyword": {
+          "$ref": "#/definitions/KeywordScope"
+        },
+        "date": {
+          "type": "string"
+        },
+        "entrants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SerpEntrant"
+          }
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "keyword",
+        "date",
+        "entrants"
+      ]
+    },
+    "SerpEntrant": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "number"
+        },
+        "storeAppId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "appId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "isCompetitor": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "position",
+        "storeAppId",
+        "title",
+        "appId",
+        "isCompetitor"
+      ]
+    },
+    "ActionOpenedPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "action.opened"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "store",
+            "country"
+          ]
+        },
+        "action": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "rule": {
+              "$ref": "#/definitions/ActionRule"
+            },
+            "category": {
+              "$ref": "#/definitions/ActionCategory"
+            },
+            "priority": {
+              "$ref": "#/definitions/ActionPriority"
+            },
+            "impact": {
+              "type": "number"
+            },
+            "firstSeenAt": {
+              "type": "string"
+            },
+            "reopened": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "rule",
+            "category",
+            "priority",
+            "impact",
+            "firstSeenAt",
+            "reopened"
+          ]
+        },
+        "keyword": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "text"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "$ref": "#/definitions/ActionEvidence"
+        },
+        "link": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "event",
+        "occurredAt",
+        "app",
+        "action",
+        "keyword",
+        "evidence",
+        "link"
+      ]
+    },
+    "ActionRule": {
+      "type": "string",
+      "enum": [
+        "keyword.add_uncovered",
+        "keyword.defend",
+        "keyword.prune",
+        "rank.investigate_drop",
+        "serp.hold_volatile",
+        "audit.fix_factor",
+        "reviews.investigate_theme",
+        "market.improve_country",
+        "keyword.push_to_top10",
+        "metadata.fix_lint",
+        "rank.investigate_unexplained_drop",
+        "competitor.investigate_overtake",
+        "reviews.investigate_rating_decline",
+        "reviews.reply_negative",
+        "listing.ship_update",
+        "conversion.investigate_drop",
+        "listing.cpp_underperforms"
+      ]
+    },
+    "ActionCategory": {
+      "type": "string",
+      "enum": [
+        "metadata",
+        "competition",
+        "regression",
+        "conversion",
+        "reputation",
+        "markets",
+        "hygiene"
+      ]
+    },
+    "ActionPriority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "ActionEvidence": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/KeywordAddUncoveredEvidence"
+        },
+        {
+          "$ref": "#/definitions/KeywordDefendEvidence"
+        },
+        {
+          "$ref": "#/definitions/KeywordPruneEvidence"
+        },
+        {
+          "$ref": "#/definitions/RankInvestigateDropEvidence"
+        },
+        {
+          "$ref": "#/definitions/SerpHoldVolatileEvidence"
+        },
+        {
+          "$ref": "#/definitions/AuditFixFactorEvidence"
+        },
+        {
+          "$ref": "#/definitions/ReviewsInvestigateThemeEvidence"
+        },
+        {
+          "$ref": "#/definitions/MarketImproveCountryEvidence"
+        },
+        {
+          "$ref": "#/definitions/KeywordPushToTop10Evidence"
+        },
+        {
+          "$ref": "#/definitions/MetadataFixLintEvidence"
+        },
+        {
+          "$ref": "#/definitions/RankInvestigateUnexplainedDropEvidence"
+        },
+        {
+          "$ref": "#/definitions/CompetitorInvestigateOvertakeEvidence"
+        },
+        {
+          "$ref": "#/definitions/ReviewsInvestigateRatingDeclineEvidence"
+        },
+        {
+          "$ref": "#/definitions/ReviewsReplyNegativeEvidence"
+        },
+        {
+          "$ref": "#/definitions/ListingShipUpdateEvidence"
+        },
+        {
+          "$ref": "#/definitions/ConversionInvestigateDropEvidence"
+        },
+        {
+          "$ref": "#/definitions/ListingCppUnderperformsEvidence"
+        }
+      ]
+    },
+    "KeywordAddUncoveredEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "keyword.add_uncovered"
+        },
+        "opportunity": {
+          "type": "number"
+        },
+        "traffic": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "difficulty": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "relevance": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "latestPosition": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "latestDepth": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "indexedFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataField"
+          }
+        },
+        "uncoveredFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataField"
+          }
+        },
+        "keywordFieldCharsFree": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "scoreProvenance": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ScoreProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "rule",
+        "opportunity",
+        "traffic",
+        "difficulty",
+        "volume",
+        "relevance",
+        "latestPosition",
+        "indexedFields",
+        "uncoveredFields",
+        "keywordFieldCharsFree",
+        "scoreProvenance"
+      ]
+    },
+    "MetadataField": {
+      "type": "string",
+      "enum": [
+        "title",
+        "subtitle",
+        "keywordField",
+        "description",
+        "promotionalText",
+        "whatsNew",
+        "shortDescription"
+      ]
+    },
+    "ScoreProvenance": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/ScoringSource"
+        },
+        "formulaVersion": {
+          "type": "string"
+        },
+        "capturedAt": {
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/definitions/ScoringConfidence"
+        }
+      },
+      "required": [
+        "source",
+        "formulaVersion",
+        "capturedAt",
+        "confidence"
+      ]
+    },
+    "ScoringSource": {
+      "type": "string",
+      "enum": [
+        "APPLE_SUGGEST_SEARCH",
+        "GOOGLE_PLAY_PREFIX_SEARCH",
+        "APPLE_SUGGEST_REACH",
+        "GOOGLE_PLAY_SUGGEST_REACH",
+        "APPLE_ADS_POPULARITY",
+        "APPLE_SEARCH_SIGNALS"
+      ]
+    },
+    "ScoringConfidence": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ]
+    },
+    "KeywordDefendEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "keyword.defend"
+        },
+        "yourPosition": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "previousPosition": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "observedDays": {
+          "type": "number"
+        },
+        "volatility": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "entrants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionSerpEntrant"
+          }
+        },
+        "entrantsAtOrAbove": {
+          "type": "number"
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "competitorBrand": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "required": [
+        "rule",
+        "yourPosition",
+        "previousPosition",
+        "windowDays",
+        "observedDays",
+        "volatility",
+        "entrants",
+        "entrantsAtOrAbove",
+        "volume"
+      ]
+    },
+    "ActionSerpEntrant": {
+      "type": "object",
+      "properties": {
+        "storeAppId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "position": {
+          "type": "number"
+        },
+        "appId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "isCompetitor": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "storeAppId",
+        "title",
+        "position",
+        "appId",
+        "isCompetitor"
+      ]
+    },
+    "KeywordPruneEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "keyword.prune"
+        },
+        "observedDays": {
+          "type": "number"
+        },
+        "checkedDays": {
+          "type": "number"
+        },
+        "rankedDays": {
+          "type": "number"
+        },
+        "bestPosition": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "traffic": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "relevance": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "dailyRequestsSaved": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rule",
+        "observedDays",
+        "checkedDays",
+        "rankedDays",
+        "bestPosition",
+        "volume",
+        "traffic",
+        "relevance",
+        "dailyRequestsSaved"
+      ]
+    },
+    "RankInvestigateDropEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "rank.investigate_drop"
+        },
+        "changedAt": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ChangeField"
+          }
+        },
+        "visibilityBefore": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "visibilityAfter": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "visibilityDelta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "trackedKeywords": {
+          "type": "number"
+        },
+        "droppedKeywords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionDroppedKeyword"
+          }
+        },
+        "meanVolatility": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "rule",
+        "changedAt",
+        "fields",
+        "visibilityBefore",
+        "visibilityAfter",
+        "visibilityDelta",
+        "windowDays",
+        "trackedKeywords",
+        "droppedKeywords",
+        "meanVolatility"
+      ]
+    },
+    "ActionDroppedKeyword": {
+      "type": "object",
+      "properties": {
+        "keywordId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "from": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "keywordId",
+        "text",
+        "from",
+        "to"
+      ]
+    },
+    "SerpHoldVolatileEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "serp.hold_volatile"
+        },
+        "volatility": {
+          "type": "number"
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "observedDays": {
+          "type": "number"
+        },
+        "yourPosition": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "dampenedRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionRule"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "volatility",
+        "windowDays",
+        "observedDays",
+        "yourPosition",
+        "dampenedRules"
+      ]
+    },
+    "AuditFixFactorEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "audit.fix_factor"
+        },
+        "factorId": {
+          "type": "string"
+        },
+        "factorLabel": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "overall": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "coveredWeight": {
+          "type": "number"
+        },
+        "totalWeight": {
+          "type": "number"
+        },
+        "auditDate": {
+          "type": "string"
+        },
+        "failingChecks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionFailingCheck"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "factorId",
+        "factorLabel",
+        "score",
+        "weight",
+        "overall",
+        "coveredWeight",
+        "totalWeight",
+        "auditDate",
+        "failingChecks"
+      ]
+    },
+    "ActionFailingCheck": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/AuditCheckStatus"
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "status",
+        "score"
+      ]
+    },
+    "AuditCheckStatus": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "warn",
+        "fail",
+        "unanswered"
+      ]
+    },
+    "ReviewsInvestigateThemeEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "reviews.investigate_theme"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "previousVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mentions": {
+          "type": "number"
+        },
+        "previousMentions": {
+          "type": "number"
+        },
+        "negativeReviews": {
+          "type": "number"
+        },
+        "totalReviews": {
+          "type": "number"
+        },
+        "ratingAvgDelta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sampleReviewIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "theme",
+        "version",
+        "previousVersion",
+        "mentions",
+        "previousMentions",
+        "negativeReviews",
+        "totalReviews",
+        "ratingAvgDelta",
+        "sampleReviewIds"
+      ]
+    },
+    "MarketImproveCountryEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "market.improve_country"
+        },
+        "country": {
+          "type": "string"
+        },
+        "homeCountry": {
+          "type": "string"
+        },
+        "marketVisibility": {
+          "type": "number"
+        },
+        "homeVisibility": {
+          "type": "number"
+        },
+        "gap": {
+          "type": "number"
+        },
+        "trackedKeywords": {
+          "type": "number"
+        },
+        "rankedKeywords": {
+          "type": "number"
+        },
+        "observedDays": {
+          "type": "number"
+        },
+        "windowDays": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rule",
+        "country",
+        "homeCountry",
+        "marketVisibility",
+        "homeVisibility",
+        "gap",
+        "trackedKeywords",
+        "rankedKeywords",
+        "observedDays",
+        "windowDays"
+      ]
+    },
+    "KeywordPushToTop10Evidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "keyword.push_to_top10"
+        },
+        "latestPosition": {
+          "type": "number"
+        },
+        "bestPosition": {
+          "type": "number"
+        },
+        "daysInBand": {
+          "type": "number"
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "relevance": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "opportunity": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "coveredFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataField"
+          }
+        },
+        "strongFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataField"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "latestPosition",
+        "bestPosition",
+        "daysInBand",
+        "windowDays",
+        "volume",
+        "relevance",
+        "opportunity",
+        "coveredFields",
+        "strongFields"
+      ]
+    },
+    "MetadataFixLintEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "metadata.fix_lint"
+        },
+        "field": {
+          "$ref": "#/definitions/MetadataField"
+        },
+        "chars": {
+          "type": "number"
+        },
+        "limit": {
+          "type": "number"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataFixLintIssue"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "field",
+        "chars",
+        "limit",
+        "issues"
+      ]
+    },
+    "MetadataFixLintIssue": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "offendingText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "rule",
+        "message",
+        "offendingText"
+      ]
+    },
+    "RankInvestigateUnexplainedDropEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "rank.investigate_unexplained_drop"
+        },
+        "country": {
+          "type": "string"
+        },
+        "visibilityBefore": {
+          "type": "number"
+        },
+        "visibilityAfter": {
+          "type": "number"
+        },
+        "visibilityDelta": {
+          "type": "number"
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "trackedKeywords": {
+          "type": "number"
+        },
+        "droppedKeywords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionDroppedKeyword"
+          }
+        },
+        "meanVolatility": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "lastOwnChangeAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "rule",
+        "country",
+        "visibilityBefore",
+        "visibilityAfter",
+        "visibilityDelta",
+        "windowDays",
+        "trackedKeywords",
+        "droppedKeywords",
+        "meanVolatility",
+        "lastOwnChangeAt"
+      ]
+    },
+    "CompetitorInvestigateOvertakeEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "competitor.investigate_overtake"
+        },
+        "competitorAppId": {
+          "type": "string"
+        },
+        "competitorName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "changedAt": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ChangeField"
+          }
+        },
+        "newTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "newSubtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionOvertakenKeyword"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "competitorAppId",
+        "competitorName",
+        "changedAt",
+        "fields",
+        "newTitle",
+        "newSubtitle",
+        "keywords"
+      ]
+    },
+    "ActionOvertakenKeyword": {
+      "type": "object",
+      "properties": {
+        "keywordId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "yourBefore": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "yourAfter": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "theirBefore": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "theirAfter": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "mentioned": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "keywordId",
+        "text",
+        "yourBefore",
+        "yourAfter",
+        "theirBefore",
+        "theirAfter",
+        "volume",
+        "mentioned"
+      ]
+    },
+    "ReviewsInvestigateRatingDeclineEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "reviews.investigate_rating_decline"
+        },
+        "recentAverage": {
+          "type": "number"
+        },
+        "baselineAverage": {
+          "type": "number"
+        },
+        "drop": {
+          "type": "number"
+        },
+        "recentReviews": {
+          "type": "number"
+        },
+        "baselineReviews": {
+          "type": "number"
+        },
+        "recentDays": {
+          "type": "number"
+        },
+        "baselineDays": {
+          "type": "number"
+        },
+        "latestVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "negativeShare": {
+          "type": "number"
+        },
+        "sampleReviewIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "recentAverage",
+        "baselineAverage",
+        "drop",
+        "recentReviews",
+        "baselineReviews",
+        "recentDays",
+        "baselineDays",
+        "latestVersion",
+        "negativeShare",
+        "sampleReviewIds"
+      ]
+    },
+    "ReviewsReplyNegativeEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "reviews.reply_negative"
+        },
+        "unanswered": {
+          "type": "number"
+        },
+        "checked": {
+          "type": "number"
+        },
+        "negative": {
+          "type": "number"
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "oldestUnansweredAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "replyRate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sampleReviewIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "rule",
+        "unanswered",
+        "checked",
+        "negative",
+        "windowDays",
+        "oldestUnansweredAt",
+        "replyRate",
+        "sampleReviewIds"
+      ]
+    },
+    "ListingShipUpdateEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "listing.ship_update"
+        },
+        "storeUpdatedAt": {
+          "type": "string"
+        },
+        "daysSinceUpdate": {
+          "type": "number"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "competitorMedianDays": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "competitorsCompared": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rule",
+        "storeUpdatedAt",
+        "daysSinceUpdate",
+        "version",
+        "competitorMedianDays",
+        "competitorsCompared"
+      ]
+    },
+    "ConversionInvestigateDropEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "conversion.investigate_drop"
+        },
+        "country": {
+          "type": "string"
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "baselineDays": {
+          "type": "number"
+        },
+        "completeThrough": {
+          "type": "string"
+        },
+        "pageViewsBefore": {
+          "type": "number"
+        },
+        "pageViewsAfter": {
+          "type": "number"
+        },
+        "getsBefore": {
+          "type": "number"
+        },
+        "getsAfter": {
+          "type": "number"
+        },
+        "conversionBefore": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "conversionAfter": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "rule",
+        "country",
+        "windowDays",
+        "baselineDays",
+        "completeThrough",
+        "pageViewsBefore",
+        "pageViewsAfter",
+        "getsBefore",
+        "getsAfter",
+        "conversionBefore",
+        "conversionAfter"
+      ]
+    },
+    "ListingCppUnderperformsEvidence": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "const": "listing.cpp_underperforms"
+        },
+        "country": {
+          "type": "string"
+        },
+        "pageTitle": {
+          "type": "string"
+        },
+        "windowDays": {
+          "type": "number"
+        },
+        "pageUniqueImpressions": {
+          "type": "number"
+        },
+        "pageViews": {
+          "type": "number"
+        },
+        "pageConversion": {
+          "type": "number"
+        },
+        "defaultConversion": {
+          "type": "number"
+        },
+        "ratio": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rule",
+        "country",
+        "pageTitle",
+        "windowDays",
+        "pageUniqueImpressions",
+        "pageConversion",
+        "defaultConversion",
+        "ratio"
+      ]
+    },
+    "ChartMovePayload": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ChartEnteredPayload"
+        },
+        {
+          "$ref": "#/definitions/ChartLeftPayload"
+        },
+        {
+          "$ref": "#/definitions/ChartMilestonePayload"
+        }
+      ]
+    },
+    "ChartEnteredPayload": {
+      "type": "object",
+      "properties": {
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "chart": {
+          "$ref": "#/definitions/ChartMoveScope"
+        },
+        "date": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "event": {
+          "type": "string",
+          "const": "chart.entered"
+        },
+        "from": {
+          "type": "null"
+        },
+        "to": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "app",
+        "chart",
+        "date",
+        "depth",
+        "event",
+        "from",
+        "occurredAt",
+        "to"
+      ]
+    },
+    "ChartMoveScope": {
+      "type": "object",
+      "properties": {
+        "store": {
+          "$ref": "#/definitions/Store"
+        },
+        "country": {
+          "type": "string"
+        },
+        "collection": {
+          "$ref": "#/definitions/CategoryCollection"
+        },
+        "genre": {
+          "type": "string"
+        },
+        "genreName": {
+          "type": "string"
+        },
+        "device": {
+          "$ref": "#/definitions/ChartDevice"
+        }
+      },
+      "required": [
+        "store",
+        "country",
+        "collection",
+        "genre",
+        "genreName",
+        "device"
+      ]
+    },
+    "CategoryCollection": {
+      "type": "string",
+      "enum": [
+        "free",
+        "paid",
+        "grossing"
+      ]
+    },
+    "ChartDevice": {
+      "type": "string",
+      "enum": [
+        "iphone",
+        "android"
+      ]
+    },
+    "ChartLeftPayload": {
+      "type": "object",
+      "properties": {
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "chart": {
+          "$ref": "#/definitions/ChartMoveScope"
+        },
+        "date": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "event": {
+          "type": "string",
+          "const": "chart.left"
+        },
+        "from": {
+          "type": "number"
+        },
+        "to": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "app",
+        "chart",
+        "date",
+        "depth",
+        "event",
+        "from",
+        "occurredAt",
+        "to"
+      ]
+    },
+    "ChartMilestonePayload": {
+      "type": "object",
+      "properties": {
+        "occurredAt": {
+          "type": "string"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "iconUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "store": {
+              "$ref": "#/definitions/Store"
+            },
+            "country": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "chart": {
+          "$ref": "#/definitions/ChartMoveScope"
+        },
+        "date": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "event": {
+          "type": "string",
+          "const": "chart.milestone"
+        },
+        "tier": {
+          "$ref": "#/definitions/RankMilestoneTier"
+        },
+        "direction": {
+          "$ref": "#/definitions/RankMilestoneDirection"
+        },
+        "from": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "app",
+        "chart",
+        "date",
+        "depth",
+        "direction",
+        "event",
+        "from",
+        "occurredAt",
+        "tier",
+        "to"
+      ]
+    },
+    "AlertBatchPayload": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "const": "alerts.batch"
+        },
+        "scope": {
+          "$ref": "#/definitions/AlertBatchScope"
+        },
+        "occurredAt": {
+          "type": "string"
+        },
+        "window": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ]
+        },
+        "totals": {
+          "type": "object",
+          "properties": {
+            "events": {
+              "type": "number"
+            },
+            "apps": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "events",
+            "apps"
+          ]
+        },
+        "apps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlertBatchAppSection"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GranularAlertPayload"
+          }
+        }
+      },
+      "required": [
+        "event",
+        "scope",
+        "occurredAt",
+        "window",
+        "totals",
+        "apps",
+        "events"
+      ]
+    },
+    "AlertBatchScope": {
+      "type": "string",
+      "enum": [
+        "owned_apps",
+        "competitors"
+      ]
+    },
+    "AlertBatchAppSection": {
+      "type": "object",
+      "properties": {
+        "app": {
+          "$ref": "#/definitions/AlertBatchApp"
+        },
+        "availability": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AppAvailabilityPayload"
+          }
+        },
+        "rankDrops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RankDroppedPayload"
+          }
+        },
+        "rankImprovements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RankImprovedPayload"
+          }
+        },
+        "rankMilestones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RankMilestonePayload"
+          }
+        },
+        "firstRankings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RankFirstPayload"
+          }
+        },
+        "overtakes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RankOvertakenPayload"
+          }
+        },
+        "chartMoves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ChartMovePayload"
+          }
+        },
+        "serpEntrants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SerpEntrantPayload"
+          }
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataChangedPayload"
+          }
+        },
+        "ratingDrops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RatingDroppedPayload"
+          }
+        },
+        "negativeReviews": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReviewNegativePayload"
+          }
+        },
+        "newReviews": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReviewNewPayload"
+          }
+        },
+        "reviewSpikes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReviewSpikePayload"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionOpenedPayload"
+          }
+        },
+        "competitors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlertBatchCompetitorSection"
+          }
+        }
+      },
+      "required": [
+        "app",
+        "rankDrops",
+        "rankImprovements",
+        "rankMilestones",
+        "firstRankings",
+        "overtakes",
+        "serpEntrants",
+        "changes",
+        "negativeReviews",
+        "actions",
+        "competitors"
+      ]
+    },
+    "AlertBatchApp": {
+      "type": "object",
+      "properties": {
+        "iconUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "store": {
+          "$ref": "#/definitions/Store"
+        },
+        "country": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "store",
+        "country"
+      ]
+    },
+    "AppAvailabilityPayload": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/AppDelistedPayload"
+        },
+        {
+          "$ref": "#/definitions/AppUnlistedMarketPayload"
+        }
+      ]
+    },
+    "AlertBatchCompetitorSection": {
+      "type": "object",
+      "properties": {
+        "app": {
+          "$ref": "#/definitions/AlertBatchApp"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataChangedPayload"
+          }
+        },
+        "availability": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AppAvailabilityPayload"
+          }
+        }
+      },
+      "required": [
+        "app",
+        "changes"
+      ]
+    }
+  },
+  "title": "AsoBeast webhook payload",
+  "description": "The JSON body AsoBeast posts to a webhook that is not a chat service. Generated from the AlertPayload type of @asobeast/shared. Fields are only ever added within a major version, so accept properties you do not know."
+}
