@@ -11,3 +11,5 @@ CHANGELOG.md
 release-please-config.json
 docs/**/*.mdx
 docs/api-reference/openapi.json
+docs/api-reference/webhook-payloads.schema.json
+docs/api-reference/webhook-payloads.examples.json

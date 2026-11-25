@@ -49,3 +49,8 @@ Rationing:
 - Not listed: the confirmed copy of a drop or exit (`CONFIRMED_KEY_PREFIXES`), events of a removed app (`AlertEvent.appId` has no foreign key), and an unwordable payload (skipped with a warning).
 - The sentence is `sentenceOf(payload, false)`, the one wording of every channel; the web builds the link from the typed payload and `primaryAppId`, so the API never knows a web route. `AlertEvent.keywordId` lets `appId` find entrants (`appId` null) of keywords the app actively tracks; older rows carry none.
 - The instance floors (`ALERT_RANK_DROP_THRESHOLD`, `ALERT_REVIEW_SCORE_MAX`, `ALERT_ACTIONS_MIN_PRIORITY`) decide whether an event exists; a subscription threshold filters only delivery, so the feed never shows just what the strictest subscription asked for.
+
+## Webhook payload contract
+
+- The generic webhook body is the `AlertPayload` union of `@asobeast/shared`. `pnpm docs:webhook-schema` generates `docs/api-reference/webhook-payloads.schema.json` from it with `ts-json-schema-generator` (open objects, so a consumer accepts added fields) and writes `WEBHOOK_PAYLOAD_EXAMPLES` (`contracts/webhook-examples.ts`, one typed example per event, so a new event without one fails the build) to `webhook-payloads.examples.json`; CI runs `docs:webhook-schema:check`.
+- Every delivery carries `X-Asobeast-Delivery`, the BullMQ job id (`deliveryIdOf`), which a retry keeps, so a receiver drops a duplicate by it; a test send carries `test~` and a random uuid. The value is opaque to receivers.

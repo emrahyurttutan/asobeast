@@ -50,10 +50,14 @@ const payload: MetadataChangedPayload = {
   changes: [{ field: 'title', before: 'A', after: 'B' }],
 };
 
-function webhookJob(webhookId: string): Job<DeliverAlertPayload> {
+function webhookJob(
+  webhookId: string,
+  attemptsMade = 0,
+): Job<DeliverAlertPayload> {
   return {
+    id: `instant~evt_1~webhook~${webhookId}`,
     name: JOBS.DELIVER_ALERT,
-    attemptsMade: 0,
+    attemptsMade,
     data: { webhookId, payload, workspaceId: 'ws_a' },
   } as unknown as Job<DeliverAlertPayload>;
 }
@@ -124,6 +128,28 @@ describe('AlertsWorker', () => {
 
   afterEach(() => delivery.onModuleDestroy());
 
+  it('sends the same delivery id on a retry', async () => {
+    webhookFind.mockResolvedValue({
+      url: 'https://hooks.test/x',
+      secret: null,
+    });
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+
+    await worker.process(webhookJob('wh_1'));
+    await worker.process(webhookJob('wh_1', 2));
+
+    const ids = mockFetch.mock.calls.map(
+      ([, init]) =>
+        (init as RequestInit & { headers: Record<string, string> }).headers[
+          'X-Asobeast-Delivery'
+        ],
+    );
+    expect(ids).toEqual([
+      'instant~evt_1~webhook~wh_1',
+      'instant~evt_1~webhook~wh_1',
+    ]);
+  });
+
   it('posts the payload and signs it when the webhook has a secret', async () => {
     webhookFind.mockResolvedValue({
       url: 'https://hooks.test/x',
@@ -139,6 +165,7 @@ describe('AlertsWorker', () => {
     const headers = init.headers as Record<string, string>;
     expect(headers['X-Asobeast-Event']).toBe('metadata.changed');
     expect(headers['X-Asobeast-Signature']).toMatch(/^sha256=[0-9a-f]{64}$/);
+    expect(headers['X-Asobeast-Delivery']).toBe('instant~evt_1~webhook~wh_1');
     expect(deliveryCreate).toHaveBeenCalledWith({
       data: {
         channel: 'webhook',

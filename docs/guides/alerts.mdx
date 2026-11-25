@@ -206,14 +206,26 @@ Detection needs no subscription: the alerts are recorded for every workspace the
 
 ## Webhook delivery
 
-A webhook receives a JSON POST with two headers, plus a signature header when the subscription has a secret.
+A webhook receives a JSON POST with these headers. The signature header is added only when the subscription has a secret.
 
 | Header | Value |
 | --- | --- |
 | `X-Asobeast-Event` | The event name, for example `alerts.batch` |
+| `X-Asobeast-Delivery` | An identifier of this delivery to this subscription, the same on every retry of it |
 | `X-Asobeast-Signature` | `sha256=<hex>`, an HMAC-SHA256 of the exact request body |
 
 Verify the signature by computing an HMAC-SHA256 of the raw request body with your subscription secret and comparing it, in constant time, with the header value. Compute it over the bytes you received rather than over a re serialized object.
+
+A delivery that fails or times out is retried, so a receiver can see the same body twice. Store the `X-Asobeast-Delivery` values you processed and skip one you have seen. Treat the value as an opaque string: its format may change. A test send from the settings page carries an identifier that starts with `test~`.
+
+### Payload schema and examples
+
+The body of a webhook that is not a chat service follows one JSON Schema, generated from the payload types of the code. Every event has an example payload that is valid against it. Both files sit in the repository under `docs/api-reference/`:
+
+- `webhook-payloads.schema.json` is the schema. Its root is a choice between every event, told apart by the `event` field.
+- `webhook-payloads.examples.json` holds one example per event, keyed by the event name.
+
+Generate a client model from the schema in any language, and use the examples as fixtures in your contract tests. Within a major version fields are only ever added, so accept properties you do not know rather than refusing them. CI fails when the schema or the examples fall behind the types.
 
 ### Which endpoints a webhook may reach
 
