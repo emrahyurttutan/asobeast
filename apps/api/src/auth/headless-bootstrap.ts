@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  OnApplicationBootstrap,
-  OnModuleDestroy,
-} from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import type { Prisma } from '@prisma/client';
@@ -14,7 +9,6 @@ import {
   type BootstrapOwner,
 } from '../config/bootstrap-config';
 import type { Env } from '../config/env';
-import { registerInBackground } from '../jobs/schedule-registration';
 import { PrismaService } from '../prisma/prisma.service';
 import { normalizeEmail } from './normalize-email';
 import { sha256 } from './password-hash';
@@ -26,22 +20,28 @@ const JUSTIFICATION =
   'the bootstrap owner is created before any workspace holds an account';
 
 export type BootstrapOutcome =
-  'owner-and-token' | 'owner' | 'token' | 'unchanged' | 'owner-missing';
+  | 'owner-and-token'
+  | 'owner'
+  | 'token'
+  | 'unchanged'
+  | 'owner-missing'
+  | 'owner-mismatch';
 
-interface OwnerRow {
-  id: string;
-  created: boolean;
-}
+type OwnerLookup =
+  | { kind: 'owner'; id: string; created: boolean }
+  | { kind: 'owner-missing' }
+  | { kind: 'owner-mismatch' };
+
+const SKIPPED_WARNINGS: Record<'owner-missing' | 'owner-mismatch', string> = {
+  'owner-missing':
+    'BOOTSTRAP_OWNER_EMAIL names no account and this instance already has one, so no bootstrap owner or token was created',
+  'owner-mismatch':
+    'BOOTSTRAP_OWNER_PASSWORD does not match the account BOOTSTRAP_OWNER_EMAIL names, so no bootstrap token was stored. Set the password the account uses now',
+};
 
 @Injectable()
-export class HeadlessBootstrap
-  implements OnApplicationBootstrap, OnModuleDestroy
-{
+export class HeadlessBootstrap implements OnApplicationBootstrap {
   private readonly logger = new Logger(HeadlessBootstrap.name);
-  private readonly lifecycle: { closing: Promise<void> | undefined } = {
-    closing: undefined,
-  };
-  private provisioning: Promise<void> = Promise.resolve();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -49,7 +49,7 @@ export class HeadlessBootstrap
     private readonly config: ConfigService<Env, true>,
   ) {}
 
-  onApplicationBootstrap(): void {
+  async onApplicationBootstrap(): Promise<void> {
     const owner = bootstrapOwnerOf({
       BOOTSTRAP_OWNER_EMAIL: this.config.get('BOOTSTRAP_OWNER_EMAIL', {
         infer: true,
@@ -62,48 +62,29 @@ export class HeadlessBootstrap
       }),
     });
     if (!owner) return;
-    this.provisioning = registerInBackground(
-      this.lifecycle,
-      () => this.provisionAndReport(owner),
-      (error) =>
-        this.logger.error(
-          `could not provision the bootstrap owner, trying again: ${error.message}`,
-        ),
-    );
+    this.report(await this.provision(owner));
   }
 
-  onModuleDestroy(): void {
-    this.lifecycle.closing = Promise.resolve();
-  }
-
-  completed(): Promise<void> {
-    return this.provisioning;
-  }
-
-  async provision(owner: BootstrapOwner): Promise<BootstrapOutcome> {
+  provision(owner: BootstrapOwner): Promise<BootstrapOutcome> {
     const email = normalizeEmail(owner.email);
-    const passwordHash = await argon2.hash(owner.password);
     return this.crossTenant.becauseThisWorkIsNotOwnedByOneWorkspace(
       JUSTIFICATION,
       () =>
         this.prisma.withTransaction(async (tx) => {
           await lockRegistration(tx);
-          const row = await this.ownerOf(tx, email, passwordHash);
-          if (!row) return 'owner-missing';
+          const lookup = await this.ownerOf(tx, email, owner.password);
+          if (lookup.kind !== 'owner') return lookup.kind;
           const tokenCreated =
             owner.apiToken !== null &&
-            (await this.ensureToken(tx, row.id, owner.apiToken));
-          return outcomeOf(row.created, tokenCreated);
+            (await this.ensureToken(tx, lookup.id, owner.apiToken));
+          return outcomeOf(lookup.created, tokenCreated);
         }),
     );
   }
 
-  private async provisionAndReport(owner: BootstrapOwner): Promise<void> {
-    const outcome = await this.provision(owner);
-    if (outcome === 'owner-missing') {
-      this.logger.warn(
-        'BOOTSTRAP_OWNER_EMAIL names no account and this instance already has one, so no bootstrap owner or token was created',
-      );
+  private report(outcome: BootstrapOutcome): void {
+    if (outcome === 'owner-missing' || outcome === 'owner-mismatch') {
+      this.logger.warn(SKIPPED_WARNINGS[outcome]);
       return;
     }
     if (outcome !== 'unchanged') {
@@ -114,14 +95,18 @@ export class HeadlessBootstrap
   private async ownerOf(
     tx: Prisma.TransactionClient,
     email: string,
-    passwordHash: string,
-  ): Promise<OwnerRow | null> {
+    password: string,
+  ): Promise<OwnerLookup> {
     const existing = await tx.user.findUnique({
       where: { email },
-      select: { id: true },
+      select: { id: true, passwordHash: true },
     });
-    if (existing) return { id: existing.id, created: false };
-    if ((await tx.user.count()) > 0) return null;
+    if (existing) {
+      return (await argon2.verify(existing.passwordHash, password))
+        ? { kind: 'owner', id: existing.id, created: false }
+        : { kind: 'owner-mismatch' };
+    }
+    if ((await tx.user.count()) > 0) return { kind: 'owner-missing' };
     await tx.workspace.upsert({
       where: { id: DEFAULT_WORKSPACE_ID },
       create: { id: DEFAULT_WORKSPACE_ID, name: 'Default' },
@@ -131,12 +116,12 @@ export class HeadlessBootstrap
       data: {
         workspaceId: DEFAULT_WORKSPACE_ID,
         email,
-        passwordHash,
+        passwordHash: await argon2.hash(password),
         role: 'owner',
       },
       select: { id: true },
     });
-    return { id: user.id, created: true };
+    return { kind: 'owner', id: user.id, created: true };
   }
 
   private async ensureToken(

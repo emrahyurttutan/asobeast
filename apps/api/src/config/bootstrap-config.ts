@@ -3,13 +3,12 @@ import {
   isPasswordAllowed,
   PASSWORD_RULE,
 } from '@asobeast/shared';
+import { isEmail } from 'class-validator';
 import type { Env } from './env';
 
 export const BOOTSTRAP_TOKEN_MIN_SECRET = 32;
 
 const BOOTSTRAP_TOKEN_SECRET = /^[A-Za-z0-9]+$/;
-
-const ADDRESS = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type BootstrapVariables = Pick<
   Env,
@@ -59,7 +58,7 @@ export function assertBootstrapConfiguration(env: BootstrapKeys): void {
       'BOOTSTRAP_OWNER_EMAIL and BOOTSTRAP_OWNER_PASSWORD are set together. Set both, or remove every BOOTSTRAP_ variable.',
     );
   }
-  if (!ADDRESS.test(email)) {
+  if (!isEmail(email)) {
     throw new Error('BOOTSTRAP_OWNER_EMAIL is not an email address.');
   }
   if (!isPasswordAllowed(password)) {

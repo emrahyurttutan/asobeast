@@ -58,7 +58,6 @@ describe('Headless bootstrap', () => {
     await app.init();
     await pauseQueues(app);
     bootstrap = app.get(HeadlessBootstrap);
-    await bootstrap.completed();
   });
 
   beforeEach(() => clearRateLimitCounters(app));
@@ -143,6 +142,32 @@ describe('Headless bootstrap', () => {
       .get('/auth/me')
       .set('Authorization', `Bearer ${BOOTSTRAP_TOKEN}`)
       .expect(200);
+  });
+
+  it('attaches no token to an account whose password does not match', async () => {
+    await prisma.apiToken.deleteMany();
+
+    await expect(
+      bootstrap.provision({ ...OWNER, password: 'someone-elses-secret' }),
+    ).resolves.toBe('owner-mismatch');
+    expect(await prisma.apiToken.count()).toBe(0);
+
+    await expect(bootstrap.provision(OWNER)).resolves.toBe('token');
+  });
+
+  it('stops restoring the token once the owner changed the password', async () => {
+    const cookie = await signIn();
+    await request(app.getHttpServer())
+      .post('/auth/password')
+      .set('Cookie', cookie)
+      .send({ current: BOOTSTRAP_PASSWORD, next: 'rotated-owner-secret' })
+      .expect(200);
+
+    await expect(bootstrap.provision(OWNER)).resolves.toBe('owner-mismatch');
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${BOOTSTRAP_TOKEN}`)
+      .expect(401);
   });
 
   it('creates nothing for an address that is not the existing owner', async () => {
