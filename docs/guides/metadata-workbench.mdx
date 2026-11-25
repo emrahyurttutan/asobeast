@@ -120,6 +120,19 @@ On an App Store app the drafts card has a **Localization** menu. **Primary listi
 
 Each localization item has a **Draft with AI** button that picks it in the menu and moves the focus there. To fill a localization's keyword field with keywords in another language, a common tactic for Spanish (Mexico) in the United States, say so in the instructions. Which storefronts read which localization is explained in [Which localizations does a storefront read?](/concepts/countries#which-localizations-does-a-storefront-read)
 
+## Preview a draft before you publish
+
+`POST /apps/{id}/metadata/preview` judges a draft listing with the same lint and coverage rules as this page, and writes nothing. It suits a release pipeline that checks the text it is about to submit. Send any of `title`, `subtitle`, `keywordField`, `shortDescription` and `description`. A field you leave out keeps its stored value, and an empty string clears it. `country` and `localization` pick the listing, as on the audit.
+
+The answer has four parts:
+
+- `fields`: the lint of every field, as the draft would read
+- `keywords`: every tracked keyword of the market, with the fields that cover it before and after the draft, its latest position and a `change` of `lost`, `gained`, `kept` or `none`
+- `atRisk`: how many keywords lose their coverage while they hold a top 10 position. Each of them is also marked `atRisk`, and they come first
+- `score`: the [audit](/guides/aso-audit) score and grade before and after the draft, for the home storefront's default listing only. For any other listing it is `null`
+
+A subtitle or keyword field sent for a Google Play app, or a short description sent for an App Store app, answers 400. A read scoped [API token](/security/api-tokens) may call it, because it changes nothing.
+
 ## Troubleshooting
 
 - **A keyword you added to the title still shows as uncovered.** Coverage reads the latest snapshot. Refresh the listing after the store publishes the change.

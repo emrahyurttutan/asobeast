@@ -40,12 +40,30 @@ import {
   screenshotTextState,
 } from './screenshot-coverage';
 
-type JudgedCoverageRow = KeywordCoverageRow & { listingCountry: string };
+export type JudgedCoverageRow = KeywordCoverageRow & { listingCountry: string };
 
-interface AuditListings {
+export interface AuditListings {
   listings: Map<string, ListingTexts>;
   localized: Map<string, LocalizedTexts[]>;
   view: ListingTexts | undefined;
+}
+
+export interface AuditedApp {
+  id: string;
+  store: Store;
+  name: string | null;
+  country: string;
+}
+
+export interface MetadataSources {
+  app: AuditedApp;
+  market: string;
+  localization: AppStoreLocalization | null;
+  viewLocalization: AppStoreLocalization | undefined;
+  active: TrackedKeywordItem[];
+  competitorNames: string[];
+  read: AuditListings;
+  keywordFields: FieldPhrases;
 }
 
 @Injectable()
@@ -61,48 +79,11 @@ export class MetadataService {
     country?: string,
     localization: AppStoreLocalization | null = null,
   ): Promise<MetadataAuditResult> {
-    const app = await this.ensureApp(appId);
-    const market = country ?? app.country;
-    if (market !== app.country) {
-      assertStorefront(app.store, market);
-    }
-    const [tracked, competitors, stored] = await Promise.all([
-      this.keywords.listTracked(appId, undefined, country, {
-        brandFacts: app.store === Store.APP_STORE,
-      }),
-      this.prisma.app.findMany({
-        where: { primaryAppId: appId },
-        select: { name: true },
-      }),
-      storedKeywordFields(this.prisma, appId),
-    ]);
-    const active = tracked.filter((item) => item.active);
-    const read = await this.readListings(app, market, localization, active);
-    const { listings, view } = read;
-    const keywordFields = fieldPhrases(stored);
-    const viewLocalization =
-      localization ?? keywordFieldLocalizations(market)[0];
-
-    const keywordFieldValue =
-      app.store === Store.APP_STORE
-        ? keywordFieldOf(keywordFields, viewLocalization)
-        : '';
-    const context: LintContext = {
-      titleWords: tokenize(view?.title ?? ''),
-      subtitleWords: tokenize(view?.subtitle ?? ''),
-      brandTokens: tokenize(app.name ?? ''),
-      competitorNames: competitors
-        .map((competitor) => competitor.name)
-        .filter((name): name is string => Boolean(name)),
-      trackedKeywords: active.map((item) => item.text),
-    };
-    const fields =
-      app.store === Store.GOOGLE_PLAY
-        ? this.playFields(view, context)
-        : this.appStoreFields(view, context, keywordFieldValue);
-
-    const coverage = this.judgeCoverage(app, active, read, keywordFields);
-    const shots = await this.screenshotsOf(app.store, listings, [
+    const sources = await this.sources(appId, country, localization);
+    const { app, market, active, read, viewLocalization } = sources;
+    const fields = this.fieldsOf(sources);
+    const coverage = this.coverageOf(sources);
+    const shots = await this.screenshotsOf(app.store, read.listings, [
       market,
       ...coverage.map((row) => row.listingCountry),
     ]);
@@ -138,6 +119,70 @@ export class MetadataService {
       country: market,
       ...(localization === null ? {} : { localization }),
     };
+  }
+
+  async sources(
+    appId: string,
+    country: string | undefined,
+    localization: AppStoreLocalization | null,
+  ): Promise<MetadataSources> {
+    const app = await this.ensureApp(appId);
+    const market = country ?? app.country;
+    if (market !== app.country) {
+      assertStorefront(app.store, market);
+    }
+    const [tracked, competitors, stored] = await Promise.all([
+      this.keywords.listTracked(appId, undefined, country, {
+        brandFacts: app.store === Store.APP_STORE,
+      }),
+      this.prisma.app.findMany({
+        where: { primaryAppId: appId },
+        select: { name: true },
+      }),
+      storedKeywordFields(this.prisma, appId),
+    ]);
+    const active = tracked.filter((item) => item.active);
+    return {
+      app,
+      market,
+      localization,
+      viewLocalization: localization ?? keywordFieldLocalizations(market)[0],
+      active,
+      competitorNames: competitors
+        .map((competitor) => competitor.name)
+        .filter((name): name is string => Boolean(name)),
+      read: await this.readListings(app, market, localization, active),
+      keywordFields: fieldPhrases(stored),
+    };
+  }
+
+  fieldsOf(sources: MetadataSources): MetadataFieldAudit[] {
+    const { app, active, read, keywordFields, viewLocalization } = sources;
+    const view = read.view;
+    const context: LintContext = {
+      titleWords: tokenize(view?.title ?? ''),
+      subtitleWords: tokenize(view?.subtitle ?? ''),
+      brandTokens: tokenize(app.name ?? ''),
+      competitorNames: sources.competitorNames,
+      trackedKeywords: active.map((item) => item.text),
+    };
+    if (app.store === Store.GOOGLE_PLAY) {
+      return this.playFields(view, context);
+    }
+    return this.appStoreFields(
+      view,
+      context,
+      keywordFieldOf(keywordFields, viewLocalization),
+    );
+  }
+
+  coverageOf(sources: MetadataSources): JudgedCoverageRow[] {
+    return this.judgeCoverage(
+      sources.app,
+      sources.active,
+      sources.read,
+      sources.keywordFields,
+    );
   }
 
   private async readListings(
@@ -307,12 +352,7 @@ export class MetadataService {
     };
   }
 
-  private async ensureApp(appId: string): Promise<{
-    id: string;
-    store: Store;
-    name: string | null;
-    country: string;
-  }> {
+  async ensureApp(appId: string): Promise<AuditedApp> {
     const app = await this.prisma.app.findFirst({
       where: { id: appId },
       select: { id: true, store: true, name: true, country: true },

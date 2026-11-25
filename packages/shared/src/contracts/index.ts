@@ -17,6 +17,7 @@ export * from './annotations';
 export * from './analytics';
 export * from './audit';
 export * from './metadata';
+export * from './listing-draft';
 export * from './screenshots';
 export * from './competitors';
 export * from './serp';

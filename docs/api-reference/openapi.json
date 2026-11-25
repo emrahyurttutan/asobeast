@@ -6021,6 +6021,48 @@
         ]
       }
     },
+    "/apps/{id}/metadata/preview": {
+      "post": {
+        "description": "Judges a draft of the title, subtitle, keyword field, short description or description against the stored listing of one storefront and localization. Omitted fields keep their stored value. Answers the lint of every field, each tracked keyword of the market with its coverage before and after the draft, its latest position and whether losing it puts a top 10 position at risk, and, for the home storefront default listing, the audit score before and after. Writes nothing and queues nothing.",
+        "operationId": "MetadataController_preview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListingDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Preview a listing draft without writing",
+        "tags": [
+          "metadata"
+        ]
+      }
+    },
     "/metadata/assistant": {
       "get": {
         "operationId": "MetadataAssistantController_status",
@@ -8710,6 +8752,99 @@
         "required": [
           "language"
         ]
+      },
+      "ListingDraftDto": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "example": "de",
+            "pattern": "^[a-z]{2}$",
+            "description": "The storefront whose listing to use instead of the home storefront."
+          },
+          "localization": {
+            "enum": [
+              "ar",
+              "bn",
+              "ca",
+              "zh-Hans",
+              "zh-Hant",
+              "hr",
+              "cs",
+              "da",
+              "nl",
+              "en-AU",
+              "en-CA",
+              "en-GB",
+              "en-US",
+              "fi",
+              "fr",
+              "fr-CA",
+              "de",
+              "el",
+              "gu",
+              "he",
+              "hi",
+              "hu",
+              "id",
+              "it",
+              "ja",
+              "kn",
+              "ko",
+              "ms",
+              "ml",
+              "mr",
+              "no",
+              "or",
+              "pl",
+              "pt-BR",
+              "pt-PT",
+              "pa",
+              "ro",
+              "ru",
+              "sk",
+              "sl",
+              "es-MX",
+              "es-ES",
+              "sv",
+              "ta",
+              "te",
+              "th",
+              "tr",
+              "uk",
+              "ur",
+              "vi"
+            ],
+            "type": "string",
+            "example": "pl",
+            "description": "A native localization of the storefront to read instead of its default listing. App Store only."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 8000,
+            "description": "The draft title. Omitted keeps the stored title."
+          },
+          "subtitle": {
+            "type": "string",
+            "maxLength": 8000,
+            "description": "The draft subtitle. App Store only."
+          },
+          "keywordField": {
+            "type": "string",
+            "maxLength": 8000,
+            "description": "The draft keyword field of the localization read, comma separated. App Store only."
+          },
+          "shortDescription": {
+            "type": "string",
+            "maxLength": 8000,
+            "description": "The draft short description. Google Play only."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 8000,
+            "description": "The draft description. Omitted keeps the stored description."
+          }
+        }
       },
       "MetadataAssistantDto": {
         "type": "object",
