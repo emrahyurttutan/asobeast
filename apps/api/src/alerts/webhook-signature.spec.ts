@@ -10,16 +10,31 @@ describe('signPayload', () => {
 
 describe('deliveryHeaders', () => {
   it('always carries content type and the event name', () => {
-    const headers = deliveryHeaders('metadata.changed', '{}', null);
+    const headers = deliveryHeaders('metadata.changed', '{}', null, 'job_1');
     expect(headers['Content-Type']).toBe('application/json');
     expect(headers['X-Asobeast-Event']).toBe('metadata.changed');
     expect(headers).not.toHaveProperty('X-Asobeast-Signature');
   });
 
   it('adds a signature only when a secret is present', () => {
-    const headers = deliveryHeaders('rank.dropped', '{"a":1}', 'topsecret');
+    const headers = deliveryHeaders(
+      'rank.dropped',
+      '{"a":1}',
+      'topsecret',
+      'job_1',
+    );
     expect(headers['X-Asobeast-Signature']).toBe(
       signPayload('topsecret', '{"a":1}'),
     );
+  });
+
+  it('names the delivery so a receiver can drop a retried one', () => {
+    const headers = deliveryHeaders(
+      'rank.dropped',
+      '{}',
+      null,
+      'instant~evt_1~webhook~wh_1',
+    );
+    expect(headers['X-Asobeast-Delivery']).toBe('instant~evt_1~webhook~wh_1');
   });
 });

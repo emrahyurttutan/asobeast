@@ -33,10 +33,12 @@ describe('WebhookDelivery', () => {
   let body: 'whole' | 'cut' | 'stalled' = 'whole';
   const stalled = new Set<ServerResponse>();
   let peakSockets = 0;
+  let received: Record<string, string | string[] | undefined> = {};
   let openSockets = 0;
 
   beforeAll(async () => {
-    server = createServer((_req, res) => {
+    server = createServer((req, res) => {
+      received = req.headers;
       if (body === 'whole') return res.writeHead(status, headers).end(answer);
       res.writeHead(status, { ...headers, 'content-length': '100' });
       if (body === 'cut') return res.write('{"ok":', () => res.destroy());
@@ -83,11 +85,23 @@ describe('WebhookDelivery', () => {
     return openSockets;
   };
 
+  it('names the job as the delivery, and a test send as a test', async () => {
+    const delivery = new WebhookDelivery(configOf());
+
+    await delivery.send(url, null, PAYLOAD, 'instant~evt_1~webhook~wh_1');
+    expect(received['x-asobeast-delivery']).toBe('instant~evt_1~webhook~wh_1');
+
+    await delivery.attempt(url, null, PAYLOAD);
+    expect(received['x-asobeast-delivery']).toMatch(/^test~[0-9a-f-]{36}$/);
+    await delivery.onModuleDestroy();
+    expect(await drainedSockets()).toBe(0);
+  });
+
   it('frees the socket a delivered webhook used', async () => {
     const delivery = new WebhookDelivery(configOf());
 
     for (let sent = 0; sent < SENT; sent++) {
-      await delivery.send(url, null, PAYLOAD);
+      await delivery.send(url, null, PAYLOAD, 'job_1');
     }
     await delivery.onModuleDestroy();
 
@@ -100,7 +114,7 @@ describe('WebhookDelivery', () => {
     const delivery = new WebhookDelivery(configOf());
 
     for (let sent = 0; sent < SENT; sent++) {
-      await expect(delivery.send(url, null, PAYLOAD)).rejects.toThrow(
+      await expect(delivery.send(url, null, PAYLOAD, 'job_1')).rejects.toThrow(
         'responded 500',
       );
     }
@@ -130,7 +144,7 @@ describe('WebhookDelivery', () => {
       status = 429;
       const delivery = new WebhookDelivery(configOf());
       const error = await delivery
-        .send(`${url}/secret-token`, null, PAYLOAD)
+        .send(`${url}/secret-token`, null, PAYLOAD, 'job_1')
         .catch((caught: unknown) => caught);
       await delivery.onModuleDestroy();
       return error;
@@ -222,7 +236,7 @@ describe('WebhookDelivery', () => {
     status = 500;
     const delivery = new WebhookDelivery(configOf());
     const error = (await delivery
-      .send(`${url}/secret-token`, null, PAYLOAD)
+      .send(`${url}/secret-token`, null, PAYLOAD, 'job_1')
       .catch((caught: unknown) => caught)) as Error;
     await delivery.onModuleDestroy();
 
@@ -235,7 +249,7 @@ describe('WebhookDelivery', () => {
     const delivery = new WebhookDelivery(configOf());
     const target = `${url}/bot123:SECRET/sendMessage?chat_id=-100`;
     const error = (await delivery
-      .send(target, null, PAYLOAD)
+      .send(target, null, PAYLOAD, 'job_1')
       .catch((caught: unknown) => caught)) as Error;
     await delivery.onModuleDestroy();
 

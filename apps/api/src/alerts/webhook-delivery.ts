@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { fetch, type Dispatcher, type Response } from 'undici';
@@ -108,6 +109,8 @@ async function retryAfterMsOf(response: Response): Promise<number> {
   );
 }
 
+export const testDeliveryId = (): string => `test~${randomUUID()}`;
+
 @Injectable()
 export class WebhookDelivery implements OnModuleDestroy {
   private readonly target: WebhookTargetOptions;
@@ -136,8 +139,9 @@ export class WebhookDelivery implements OnModuleDestroy {
     url: string,
     secret: string | null,
     payload: AlertPayload,
+    deliveryId: string,
   ): Promise<void> {
-    const response = await this.post(url, secret, payload);
+    const response = await this.post(url, secret, payload, deliveryId);
     if (response.status === TOO_MANY_REQUESTS) {
       throw new WebhookRateLimitedError(
         response.retryAfterMs,
@@ -157,7 +161,7 @@ export class WebhookDelivery implements OnModuleDestroy {
     payload: AlertPayload,
   ): Promise<WebhookTestResult> {
     try {
-      const response = await this.post(url, secret, payload);
+      const response = await this.post(url, secret, payload, testDeliveryId());
       return { delivered: response.ok, status: response.status };
     } catch {
       return { delivered: false, status: null };
@@ -168,12 +172,13 @@ export class WebhookDelivery implements OnModuleDestroy {
     url: string,
     secret: string | null,
     payload: AlertPayload,
+    deliveryId: string,
   ): Promise<DeliveryAnswer> {
     const target = assertDeliverableUrl(url, this.target);
     const body = formatWebhookBody(url, payload, this.origin);
     const response = await fetch(target, {
       method: 'POST',
-      headers: deliveryHeaders(payload.event, body, secret),
+      headers: deliveryHeaders(payload.event, body, secret, deliveryId),
       body,
       dispatcher: this.dispatcher,
       redirect: 'manual',

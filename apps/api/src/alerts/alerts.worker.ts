@@ -111,7 +111,12 @@ export class AlertsWorker extends WorkerHost implements OnModuleInit {
       return;
     }
     try {
-      await this.delivery.send(webhook.url, webhook.secret, payload);
+      await this.delivery.send(
+        webhook.url,
+        webhook.secret,
+        payload,
+        deliveryIdOf(job),
+      );
       await this.record('webhook', { webhookId }, payload.event, job, null);
       this.logger.debug(`delivered ${payload.event} to webhook ${webhookId}`);
     } catch (error) {
@@ -176,4 +181,10 @@ export class AlertsWorker extends WorkerHost implements OnModuleInit {
       this.logger.warn(`delivery log failed: ${(logError as Error).message}`);
     }
   }
+}
+
+export function deliveryIdOf(
+  job: Pick<Job, 'id' | 'name' | 'timestamp'>,
+): string {
+  return job.id ?? `${job.name}~${job.timestamp}`;
 }
