@@ -92,7 +92,7 @@ The other product's backend reaches the API at `http://asobeast-api:4000` and se
 
 ## Receive alerts on the same network
 
-By default a webhook may not point at a private address, so a receiver named by a Compose service is refused. `WEBHOOK_ALLOW_PRIVATE_TARGETS=true` lifts that for a self hosted instance; it cannot be combined with billing. Register the receiver with `POST /webhooks` using the same token, and verify every delivery as [Webhook delivery](/guides/alerts#webhook-delivery) describes.
+By default a webhook may not point at a private address, so a receiver named by a Compose service is refused. `WEBHOOK_ALLOW_PRIVATE_TARGETS=true` lifts that for a self hosted instance; it cannot be combined with billing. Register the receiver with `POST /webhooks` using the same token, and verify every delivery as [Webhook delivery](/guides/alerts#webhook-delivery) describes. [Payload schema and examples](/guides/alerts#payload-schema-and-examples) names the files to generate a client model and contract tests from.
 
 ## Check the engine
 
