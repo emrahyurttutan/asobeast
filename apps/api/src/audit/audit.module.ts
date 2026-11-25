@@ -9,6 +9,7 @@ import { StoreProvidersModule } from '../store-providers/store-providers.module'
 import { AuditAiRunsService } from './audit-ai-runs.service';
 import { AuditAiService } from './audit-ai.service';
 import { AuditContextLoader } from './audit-context.loader';
+import { AuditDraftScorer } from './audit-draft-scorer';
 import { AuditCreativeWorker } from './audit-creative.worker';
 import { AuditController } from './audit.controller';
 import { AuditService } from './audit.service';
@@ -27,11 +28,12 @@ import { CreativeImages } from './creative/creative-images';
   providers: [
     AuditService,
     AuditContextLoader,
+    AuditDraftScorer,
     AuditAiService,
     AuditAiRunsService,
     AuditCreativeWorker,
     CreativeImages,
   ],
-  exports: [AuditService],
+  exports: [AuditService, AuditDraftScorer],
 })
 export class AuditModule {}

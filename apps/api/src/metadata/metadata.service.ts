@@ -352,7 +352,7 @@ export class MetadataService {
     };
   }
 
-  private async ensureApp(appId: string): Promise<AuditedApp> {
+  async ensureApp(appId: string): Promise<AuditedApp> {
     const app = await this.prisma.app.findFirst({
       where: { id: appId },
       select: { id: true, store: true, name: true, country: true },
